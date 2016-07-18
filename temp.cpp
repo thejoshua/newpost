@@ -4,13 +4,15 @@
 #include <fstream>
 #include <ctime>
 
-void errorExit();
+void errorExit(int reason);
+void theErrorMessage(std::string errorMessage);
+void usageMessage();
 
 int main(int argc, char *argv[]) {
 
   // no arguments!
   if (argc == 1) {
-    errorExit();
+    errorExit(0);
   }
 
   if (!std::strcmp(argv[1], "post") || !std::strcmp(argv[1], "page")) {
@@ -63,7 +65,7 @@ int main(int argc, char *argv[]) {
     theNewFile.open(fileName);
     if (theNewFile.bad()) {
       //couldn't open file for writing.
-      errorExit();
+      errorExit(2);
     }
     theNewFile << frontMatter;
     theNewFile.close();
@@ -71,6 +73,8 @@ int main(int argc, char *argv[]) {
     std::cout << "File written...\n";
     std::cout << "and we\'re done. Bye." << std::endl;
     std::exit(0);
+  } else {
+    errorExit(1);
   }
 
   //Why does this return give me an "abort trap: 6"?
@@ -79,8 +83,37 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void errorExit () {
-    //generic error exitor
-    std::cout << "Usage: a.out post|page \"title\" tag tag ..." << std::endl;
+void errorExit (int reason) {
+  switch (reason) {
+    case 0:
+      //no options, let's be nice, no error message
+      usageMessage();
+      std::exit(0);
+      break; //unneeded break, but ocd!
+    case 1: 
+      //no post/page option
+      theErrorMessage("1: no post or page option!");
+      break;
+    case 2: 
+      //couldn't open file
+      theErrorMessage("2: could not create new file");
+      break;
+    default:
+      theErrorMessage("something broke?");
+  }
+
     std::exit(1);
+}
+
+void usageMessage() {
+  std::cout << "Usage: a.out type \"title\" tag tag ...\n\n" <<
+               "  Type  (required) is either post or page.\n" <<
+               "  Title (required) should be in \"quotes\".\n" <<
+               "  Tags  (optional) are seperated by spaces." <<
+               std::endl;
+}
+
+void theErrorMessage(std::string errorMessage) {
+  usageMessage();
+  std::cout << "\n\nError: " << errorMessage << std::endl;
 }
