@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -60,6 +61,10 @@ int main(int argc, char *argv[]) {
     //got all the data, file time!
     std::ofstream theNewFile;
     theNewFile.open(fileName);
+    if (theNewFile.bad()) {
+      //couldn't open file for writing.
+      errorExit();
+    }
     theNewFile << frontMatter;
     theNewFile.close();
 
